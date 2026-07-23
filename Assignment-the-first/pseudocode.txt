@@ -1,0 +1,52 @@
+shebang#!
+
+def reverse_complement(rvDNA: str) -> str:
+    '''Take a sequence and return its reverse compliment. For unknown nucleotides, lists "N" as reverse compliment.'''
+    return string
+Input: NGACA
+Expected output: TGTCN
+
+
+Loop through known barcode text file to create barcodes_set
+    #Keys - Barcodes 
+
+Set up counting_dict
+    #Keys - Unknown, then every index combination (i1:i1, i1:i2.... i24:i23, i24:i24)
+        #### WE WILL NOT HAVE A HOPPED CATEGORY, BC THEY WILL BE IN THE COMBO CATEGORIES.
+    #Values - Number of each 
+
+
+Loop through barcodes_set to initialize all possible combinations.
+for a in barcodes_set:
+    for b in barcodes_set:
+        counting_dict[f"{a}:{b}"] = 0
+
+Systematically create fq files for output. 
+
+Systematically open all fq files for output. (Not using with open)
+
+Loop through all input files. Capture a read in a list. Then compare the reads (index 1 of the list)
+    if "N" in R2 or R3: 
+        Write record to Unknown files (fw and rv), appending "[Barcode1]-[Barcode2]"
+        counting_dict[unknown] += 1
+    if R2 or reverse(R3) not in barcodes_set:
+        Write record to Unknown files (fw and rv), appending "[Barcode1]-[Barcode2]"
+
+    else:
+        if R2 == reverse(R3):
+            Write record to the appropriate Matched file, appending "[Barcode1]-[Barcode2]" in the header
+            unknown_count += 1
+        else: #they do not match 
+            Write record to the Hopped files (fw and rv), appending "[Barcode1]-[Barcode2]" in the header
+
+
+Systematically close all output files.
+
+
+Resulting files:
+24x - mat_r1_[barcode].fq
+24x - mat_r2_[barcode].fq
+- hop_r1.fq
+- hop_r2.fq
+- unk_r1.fq
+- unk_r2.fq
