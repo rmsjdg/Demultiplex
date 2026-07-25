@@ -1,5 +1,17 @@
 shebang#!
 
+import argparse
+import bioinfo
+
+set up argparses:
+    -a for r1 
+    -b for r2 
+    -c for r3 
+    -d for r4 
+    -i for index_file
+    -o for q_cutoff
+
+
 def reverse_complement(rvDNA: str) -> str:
     '''Take a sequence and return its reverse compliment. For unknown nucleotides, lists "N" as reverse compliment.'''
     return string
@@ -7,7 +19,7 @@ Input: NGACA
 Expected output: TGTCN
 
 
-Loop through known barcode text file to create barcodes_set
+Loop through known barcode text file (args.index_file) to create barcodes_set
     #Keys - Barcodes 
 
 Set up counting_dict
@@ -23,19 +35,30 @@ for a in barcodes_set:
 
 Systematically create fq files for output. 
 
-Systematically open all fq files for output. (Not using with open)
+Systematically open all fq files for output via args. (Not using with open)
 
 Loop through all input files. Capture a read in a list. Then compare the reads (index 1 of the list)
+
+    #Find unknown reads
     if "N" in R2 or R3: 
         Write record to Unknown files (fw and rv), appending "[Barcode1]-[Barcode2]"
         counting_dict[unknown] += 1
-    if R2 or reverse(R3) not in barcodes_set:
+
+    #Find mis-reads
+    elif R2 or reverse(R3) not in barcodes_set:
         Write record to Unknown files (fw and rv), appending "[Barcode1]-[Barcode2]"
+        counting_dict[unknown] += 1
+
+    #find low quality barcodes (average -- may introduce a loop and do convert_phred instead if I want to use individual scores for cutoff)
+    elif bioinfo.qual_score([both barcodes]) <= args.q_cutoff :
+        Write record to Unknown files (fw and rv), appending "[Barcode1]-[Barcode2]"
+        counting_dict[unknown] += 1    
+
 
     else:
         if R2 == reverse(R3):
             Write record to the appropriate Matched file, appending "[Barcode1]-[Barcode2]" in the header
-            unknown_count += 1
+            
         else: #they do not match 
             Write record to the Hopped files (fw and rv), appending "[Barcode1]-[Barcode2]" in the header
 
@@ -44,9 +67,9 @@ Systematically close all output files.
 
 
 Resulting files:
-24x - mat_r1_[barcode].fq
-24x - mat_r2_[barcode].fq
-- hop_r1.fq
-- hop_r2.fq
-- unk_r1.fq
-- unk_r2.fq
+24x - matched_r1_[barcode].fq
+24x - matched_r2_[barcode].fq
+- hopped_r1.fq
+- hopped_r2.fq
+- unknown_r1.fq
+- unknown_r2.fq
