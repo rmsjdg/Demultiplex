@@ -30,14 +30,14 @@ file4 = args.file4
 qcutoff = args.qcutoff
 output = args.output
 
-# #test files
-# index_file = "/projects/bgmp/shared/2017_sequencing/indexes.txt"
-# file1 = "../TEST-input_FASTQ/testin_R1.fq.gz"
-# file2 = "../TEST-input_FASTQ/testin_R2.fq.gz"
-# file3 = "../TEST-input_FASTQ/testin_R3.fq.gz"
-# file4 = "../TEST-input_FASTQ/testin_R4.fq.gz"
-# qcutoff = 20
-# output = "output"
+#test files
+index_file = "/projects/bgmp/shared/2017_sequencing/indexes.txt"
+file1 = "../TEST-input_FASTQ/testin_R1.fq.gz"
+file2 = "../TEST-input_FASTQ/testin_R2.fq.gz"
+file3 = "../TEST-input_FASTQ/testin_R3.fq.gz"
+file4 = "../TEST-input_FASTQ/testin_R4.fq.gz"
+qcutoff = 20
+output = "output"
 
 
 #Initialize barcodes set
@@ -48,6 +48,12 @@ with open(index_file) as fh:
         line = line.strip().split()
         barcode = line[4]
         barcodes_set.add(barcode)
+
+#Sorted list for summary.md
+barcodes_sorted_list: list = []
+for barcode in barcodes_set:
+    barcodes_sorted_list.append(barcode)
+barcodes_sorted_list.sort()
 
 #Set up counting dictionary with all combos initalized to 0.
     #Keys - every index combination (1:1, 1:2... 24:23, 24:24) unknown will be counted separaately.
@@ -147,10 +153,23 @@ for a in counting_dict:
 
 #Write out summary file
 with open(f"{output}/summary.md", "wt") as opf:
-    opf.write(f"Total number of records: {record_number}\n\nTotal number of matched reads: {matched}\n\nTotal number of hopped reads: {hopped}\n\n")
-    opf.write("| R1 Index | R2 Index | Count | Percent |\n")
-    opf.write("|----------|----------|----------|----------|\n")
-    opf.write(f"| unknown | unknown | {unknown} | {(unknown/record_number)*100:.2f}\n")
-    for a in counting_dict:
-        if a != "unknown":
-            opf.write(f"| {a[0]} | {a[1]} | {counting_dict[a]} | {(counting_dict[a]/record_number)*100:.2f}% |\n")
+    #Basic stats
+    opf.write(f"## Basic Stats:\nTotal number of records: {record_number}\n\nTotal number of matched reads: {matched} ({((matched/record_number)*100):.2f}%)\n\nTotal number of hopped reads: {hopped} ({((hopped/record_number)*100):.2f}%)\n\nTotal number of unknown reads: {unknown} ({(unknown/record_number)*100:.2f}%)\n\n")
+
+
+    #TABLE 1
+    opf.write(f"\n\n## Table 1: Matched Indexes:\n\
+| Index | Count | Percent |\n\
+|----------|----------|----------|\n")
+
+    for a in barcodes_sorted_list:
+        opf.write(f"| {a} | {counting_dict[(a,a)]} | {(counting_dict[(a,a)]/record_number)*100:.2f}% |\n")
+
+    #TABLE 2
+    opf.write(f"\n\n## Table 2: Hopped Indexes:\n\
+| Index | Count | Percent |\n\
+|----------|----------|----------|\n")
+    for a in barcodes_sorted_list:
+        for b in barcodes_sorted_list:
+            if a != b:
+                opf.write(f"| {a} | {b} | {counting_dict[(a,b)]} | {(counting_dict[(a,b)]/record_number)*100:.2f}% |\n")
