@@ -1,11 +1,11 @@
 ## Basic Stats:
-Total number of records: 5
+Total number of records: 5 
 
-Total number of matched reads: 3 (60.00%)
+Total number of matched reads: 2 (40.00%)
 
 Total number of hopped reads: 1 (20.00%)
 
-Total number of unknown reads: 1 (20.00%)
+Total number of unknown reads: 2 (40.00%)
 
 
 
@@ -28,7 +28,7 @@ Total number of unknown reads: 1 (20.00%)
 | 12 | GATCAAGG | 0 | 0.00% |
 | 13 | GATCTTGC | 0 | 0.00% |
 | 14 | GCTACTCT | 0 | 0.00% |
-| 15 | GTAGCGTA | 2 | 40.00% |
+| 15 | GTAGCGTA | 1 | 20.00% |
 | 16 | GTCCTAAG | 0 | 0.00% |
 | 17 | TACCGGAT | 0 | 0.00% |
 | 18 | TAGCCATG | 0 | 0.00% |

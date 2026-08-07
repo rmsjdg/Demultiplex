@@ -2,7 +2,7 @@
 
 #SBATCH --account=bgmp
 #SBATCH --partition=bgmp
-#SBATCH --job-name=rj.dxNone
+#SBATCH --job-name=rj.dx
 
 DB=/projects/bgmp/shared/2017_sequencing
 
@@ -12,4 +12,4 @@ DB=/projects/bgmp/shared/2017_sequencing
  -c ${DB}/1294_S1_L008_R3_001.fastq.gz \
  -d ${DB}/1294_S1_L008_R4_001.fastq.gz \
  -i ${DB}/indexes.txt \
- -o /scratch/bgmp/roj/demux/qNone/
+ -o /scratch/bgmp/roj/demux/

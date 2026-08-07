@@ -6,9 +6,11 @@ import gzip
 import matplotlib.pyplot as plt
 
 def get_args(): #CLI
-    parser = argparse.ArgumentParser(description="A program that takes four read files (R1-R4), an index file, \
-                                     and a quailty score cutoff. Creates 54 fq files with barcode-storted data (fw and rv)\
-                                     and a summary .md file summarizing hopping data.")
+    parser = argparse.ArgumentParser(description="A program that takes four gzipped Illumina read files (R1-R4), an index file, \
+                                     a quailty score cutoff (optional), and an output destination (optional). \
+                                     Demultiplexes and organizes outputs data into separate FQ files for each barcode permutation.\
+                                     Generates a summary.md file. \
+                                     \nNote: Index file structure must include header and barcodes must be in fifth column of each row.")
     parser.add_argument("-a", "--file1", help="Path of R1 input file", required = True, type = str)
     parser.add_argument("-b", "--file2", help="Path of R2 input file", required = True, type = str)
     parser.add_argument("-c", "--file3", help="Path of R3 input file", required = True, type = str)
@@ -41,6 +43,7 @@ if output[-1] != "/":
 # file4 = "../TEST-input_FASTQ/testin_R4.fq.gz"
 # qcutoff = 20
 # output = "output"
+
 # ./demultiplex.py -a ../TEST-input_FASTQ/testin_R1.fq.gz -b ../TEST-input_FASTQ/testin_R2.fq.gz -c ../TEST-input_FASTQ/testin_R3.fq.gz -d ../TEST-input_FASTQ/testin_R4.fq.gz -i /projects/bgmp/shared/2017_sequencing/indexes.txt -o /projects/bgmp/roj/bioinfo/Bi622/Demultiplex/Assignment-the-third/output -q 20
 
 #Initialize barcodes set
@@ -83,18 +86,18 @@ try:
         gzip.open(file3, "rt") as r3, \
         gzip.open(file4, "rt") as r4:
         record_number: int = 0
-        print("Reading fq files.")
+        print("Reading fq files.", flush=True)
         while True: 
             record_r1 = bioinfo.read_fqrecord(r1)
             record_r2 = bioinfo.read_fqrecord(r2)
             record_r3 = bioinfo.read_fqrecord(r3)
             record_r4 = bioinfo.read_fqrecord(r4) 
 
-            if record_r1[0]=="":
+            if record_r1[0]=="": #Escape loop if we reach end of file
                 break
             record_number += 1
-            if (record_number%1000000)==0:
-                print(f"On record {record_number} ({(record_number/363246735)*100}%).")
+            if (record_number%10000000)==0: #Periodic print statement every 10mil for sanity
+                print(f"On record {record_number:,} ({(record_number/363246735)*100:.2f}%).", flush=True)
 
             record_r3[1] = bioinfo.reverse_complement(record_r3[1]) #turn R3 barcode into revcomp
             bar1=record_r2[1]
@@ -110,19 +113,19 @@ try:
                     of_un1.write(f"{record_r1[i]}\n")
                     of_un2.write(f"{record_r4[i]}\n")
 
-            #if under cutoff
-            elif (bioinfo.qual_score(record_r2[3]) <= qcutoff) or (bioinfo.qual_score(record_r3[3]) <= qcutoff):
-                unknown += 1
-                for i in range(4):
-                    of_un1.write(f"{record_r1[i]}\n")
-                    of_un2.write(f"{record_r4[i]}\n")
-
-            # #alternatate "if under cutoff" but using individual qscores instead of average.
-            # if (any(bioinfo.convert_phred(a) for a in record_r2[3]) <= qcutoff) or (any(bioinfo.convert_phred(b) for b in record_r3[3]) <= qcutoff):
+            # #if under cutoff (average for the whole barcode)
+            # elif (bioinfo.qual_score(record_r2[3]) <= qcutoff) or (bioinfo.qual_score(record_r3[3]) <= qcutoff):
             #     unknown += 1
             #     for i in range(4):
             #         of_un1.write(f"{record_r1[i]}\n")
             #         of_un2.write(f"{record_r4[i]}\n")
+
+            #alternatate "if under cutoff" but using individual qscores instead of average.
+            elif (any(bioinfo.convert_phred(a) <= qcutoff for a in record_r2[3])) or (any(bioinfo.convert_phred(b) <= qcutoff for b in record_r3[3])):
+                unknown += 1
+                for i in range(4):
+                    of_un1.write(f"{record_r1[i]}\n")
+                    of_un2.write(f"{record_r4[i]}\n")
 
             #if matched
             elif bar1 == bar2:
@@ -149,6 +152,8 @@ finally:
     of_hp2.close()
 
 
+
+print(f"Printing figure and summary file.", flush=True)
 #Calculate percent matched and percent hopped
 matched = 0
 hopped = 0
@@ -165,9 +170,9 @@ for a in barcodes_sorted_list:
     y.append((counting_dict[(a,a)]/record_number)*100)
 plt.bar(barcodes_sorted_list, y, color="cornflowerblue")
 plt.title(f"Percent of matched indexes (Qscore avg cutoff: {qcutoff})")
-plt.xlabel("Barcode Ref # (See Table 1)")
-plt.ylabel("Percent of total records")
-plt.xticks(rotation=60)
+plt.xlabel("Barcode")
+plt.ylabel("Percent (of all records)")
+plt.xticks(rotation=60, ha="right")
 plt.savefig(f"{output}matched_and_unknown.png", bbox_inches='tight')
 
 
@@ -175,11 +180,11 @@ plt.savefig(f"{output}matched_and_unknown.png", bbox_inches='tight')
 with open(f"{output}summary.md", "wt") as opf:
     #Basic stats
     ref_num = 0
-    opf.write(f"## Basic Stats:\n\
-Total number of records: {record_number}\n\n\
-Total number of matched reads: {matched} ({((matched/record_number)*100):.2f}%)\n\n\
-Total number of hopped reads: {hopped} ({((hopped/record_number)*100):.2f}%)\n\n\
-Total number of unknown reads: {unknown} ({(unknown/record_number)*100:.2f}%)\n\n")
+    opf.write(f"## General Info:\n\
+Total number of records: {record_number:,} \n\n\
+Total number of matched reads: {matched:,} ({((matched/record_number)*100):.2f}%)\n\n\
+Total number of hopped reads: {hopped:,} ({((hopped/record_number)*100):.2f}%)\n\n\
+Total number of unknown reads: {unknown:,} ({(unknown/record_number)*100:.2f}%)\n\n")
 
     #TABLE 1
     opf.write(f"\n\n## Matched Indexes:\n\
@@ -189,7 +194,7 @@ Total number of unknown reads: {unknown} ({(unknown/record_number)*100:.2f}%)\n\
 |----------|----------|----------|----------|\n")
     for a in barcodes_sorted_list:
         ref_num += 1
-        opf.write(f"| {ref_num} | {a} | {counting_dict[(a,a)]} | {(counting_dict[(a,a)]/record_number)*100:.2f}% |\n")
+        opf.write(f"| {ref_num} | {a} | {counting_dict[(a,a)]} | {(counting_dict[(a,a)]/record_number)*100:.4f}% |\n")
 
     #TABLE 2
     opf.write(f"\n\n## Hopped Indexes:\n\
@@ -200,4 +205,4 @@ Total number of unknown reads: {unknown} ({(unknown/record_number)*100:.2f}%)\n\
         for b in barcodes_sorted_list:
             if a != b:
                 ref_num +=1
-                opf.write(f"| {ref_num} | {a} | {b} | {counting_dict[(a,b)]} | {(counting_dict[(a,b)]/record_number)*100:.2f}% |\n")
+                opf.write(f"| {ref_num} | {a} | {b} | {counting_dict[(a,b)]} | {(counting_dict[(a,b)]/record_number)*100:.4f}% |\n")

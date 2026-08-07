@@ -1,0 +1,61 @@
+Reading fq files.
+On record 10,000,000 (2.75%).
+On record 20,000,000 (5.51%).
+On record 30,000,000 (8.26%).
+On record 40,000,000 (11.01%).
+On record 50,000,000 (13.76%).
+On record 60,000,000 (16.52%).
+On record 70,000,000 (19.27%).
+On record 80,000,000 (22.02%).
+On record 90,000,000 (24.78%).
+On record 100,000,000 (27.53%).
+On record 110,000,000 (30.28%).
+On record 120,000,000 (33.04%).
+On record 130,000,000 (35.79%).
+On record 140,000,000 (38.54%).
+On record 150,000,000 (41.29%).
+On record 160,000,000 (44.05%).
+On record 170,000,000 (46.80%).
+On record 180,000,000 (49.55%).
+On record 190,000,000 (52.31%).
+On record 200,000,000 (55.06%).
+On record 210,000,000 (57.81%).
+On record 220,000,000 (60.56%).
+On record 230,000,000 (63.32%).
+On record 240,000,000 (66.07%).
+On record 250,000,000 (68.82%).
+On record 260,000,000 (71.58%).
+On record 270,000,000 (74.33%).
+On record 280,000,000 (77.08%).
+On record 290,000,000 (79.84%).
+On record 300,000,000 (82.59%).
+On record 310,000,000 (85.34%).
+On record 320,000,000 (88.09%).
+On record 330,000,000 (90.85%).
+On record 340,000,000 (93.60%).
+On record 350,000,000 (96.35%).
+On record 360,000,000 (99.11%).
+Printing figure and summary file.
+	Command being timed: "/projects/bgmp/roj/bioinfo/Bi622/Demultiplex/Assignment-the-third/demultiplex.py -a /projects/bgmp/shared/2017_sequencing/1294_S1_L008_R1_001.fastq.gz -b /projects/bgmp/shared/2017_sequencing/1294_S1_L008_R2_001.fastq.gz -c /projects/bgmp/shared/2017_sequencing/1294_S1_L008_R3_001.fastq.gz -d /projects/bgmp/shared/2017_sequencing/1294_S1_L008_R4_001.fastq.gz -i /projects/bgmp/shared/2017_sequencing/indexes.txt -o /scratch/bgmp/roj/demux/"
+	User time (seconds): 2550.15
+	System time (seconds): 18.75
+	Percent of CPU this job got: 83%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 51:03.18
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 299808
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 44988
+	Voluntary context switches: 48495
+	Involuntary context switches: 5909
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
